@@ -1,0 +1,22 @@
+services:
+  stock-managament-prometheus:
+    image: prom/prometheus:latest
+    profiles: ['monit']
+    volumes:
+      - ./resource/monit/prometheus.yml:/etc/prometheus/prometheus.yml
+    ports:
+      - '9090:9090'
+
+  stock-management-grafana:
+    image: grafana/grafana:latest
+    profiles: ['monit']
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    ports:
+      - '3001:3000'
+
+volumes:
+  grafana-storage:
+    driver: local

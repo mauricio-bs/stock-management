@@ -1,0 +1,36 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "declaration": true,
+    "removeComments": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "target": "ES2021",
+    "sourceMap": true,
+    "outDir": "./dist",
+    "baseUrl": "./",
+    "sourceRoot": "./src",
+    "incremental": true,
+    "skipLibCheck": true,
+    "strictNullChecks": false,
+    "noImplicitAny": false,
+    "strictBindCallApply": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
+    "allowJs": true,
+    "paths": {
+      "@common/*": ["src/common/*"],
+      "@config/*": ["src/config/*"],
+      "@entities/*": ["src/entities/*"],
+      "@utils/*": ["src/common/utils/*"],
+      "@guards/*": ["src/common/guards/*"],
+      "@database/*": ["src/common/database/*"],
+      "@repositories/*": ["src/repositories/*"],
+      "@interfaces/*": ["src/common/interfaces/*"],
+      "@interceptors/*": ["src/common/interceptors/*"],
+      "@modules/*": ["src/modules/*"]
+    },
+    "typeRoots": ["./node_modules/@types", "common/@types"]
+  }
+}

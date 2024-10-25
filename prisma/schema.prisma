@@ -1,0 +1,133 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch", "fullTextIndex"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id         String     @id @default(uuid()) @db.Uuid
+  name       String
+  cnpj       String
+  is_active  Boolean    @default(true)
+  phone      String?
+  created_at DateTime   @default(now())
+  updated_at DateTime   @updatedAt
+  deleted_at DateTime?
+  // relations
+  products   Product[]
+  users      User[]
+  Category   Category[]
+  Sale       Sale[]
+
+  @@map("company")
+}
+
+model User {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  document   String?
+  email      String    @unique
+  password   String
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  // relations
+  company_id String    @db.Uuid
+  company    Company   @relation(fields: [company_id], references: [id], onUpdate: Cascade)
+
+  @@index([id, company_id])
+  @@map("user")
+}
+
+enum unit_measure {
+  UN
+  M
+  KG
+  PCT
+}
+
+model Product {
+  id            String       @id @default(uuid()) @db.Uuid
+  name          String
+  is_active     Boolean      @default(true)
+  quantity      Float
+  cost_value    Decimal      @db.Money()
+  profit_margin Float        @db.DoublePrecision
+  price         Decimal      @db.Money
+  measure_unit  unit_measure
+  created_at    DateTime     @default(now())
+  updated_at    DateTime     @updatedAt
+  deleted_at    DateTime?
+  // relations
+  company_id    String       @db.Uuid
+  company       Company      @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  category_id   String       @db.Uuid
+  category      Category     @relation(fields: [category_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  SaleItems     SaleItems[]
+
+  @@index([id, company_id])
+  @@map("product")
+}
+
+model Category {
+  id         String    @id @default(uuid()) @db.Uuid
+  name       String
+  is_active  Boolean   @default(true)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  // relations
+  company_id String    @db.Uuid
+  company    Company   @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  Product    Product[]
+
+  @@index([id, company_id])
+  @@map("category")
+}
+
+enum sale_status {
+  pending
+  completed
+  canceled
+}
+
+model Sale {
+  id             String      @id @default(uuid()) @db.Uuid
+  total          Decimal     @db.Money
+  total_discount Decimal?    @db.Money
+  status         sale_status @default(pending)
+  created_at     DateTime    @default(now())
+  updated_at     DateTime    @updatedAt
+  deleted_at     DateTime?
+  // relations
+  company_id     String      @db.Uuid
+  company        Company     @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sale_items     SaleItems[]
+
+  @@index([id, company_id])
+  @@map("sale")
+}
+
+model SaleItems {
+  id             String    @id @default(uuid()) @db.Uuid
+  quantity       Float     @db.DoublePrecision
+  unit_value     Decimal   @db.Money
+  total_value    Decimal   @db.Money
+  total_discount Decimal?  @db.Money
+  unit_discount  Float?
+  created_at     DateTime  @default(now())
+  updated_at     DateTime  @updatedAt
+  deleted_at     DateTime?
+  // relations
+  sale_id        String    @db.Uuid
+  sale           Sale      @relation(fields: [sale_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  product_id     String    @db.Uuid
+  product        Product   @relation(fields: [product_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@map("sale_items")
+}

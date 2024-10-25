@@ -1,0 +1,30 @@
+name: stock-management
+
+services:
+  stock-management-api:
+    build: .
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=docker
+      - DATABASE_URL=postgres://$DB_USER:$DB_PASS@stock-management-db:$DB_PORT/$DB_NAME?schema=public
+      - CACHE_REDIS_URL=rediss://stock-management-redis:6379/0
+    develop:
+      watch:
+        - path: .
+          action: sync+restart
+          target: /usr/app
+    ports:
+      - $PORT:$PORT
+      - 9229:9229
+    volumes:
+      - .:/usr/app
+    depends_on:
+      - stock-management-db
+      - stock-management-redis
+    entrypoint: ['.docker/entrypoint.sh']
+
+include:
+  - env_file: .env
+  - path:
+      - ./docker-compose-dbs.yml
+      - ./docker-compose-monit.yml
