@@ -13,7 +13,7 @@ import { catchError, Observable, tap } from 'rxjs';
 import { Logger } from 'winston';
 
 import { LOG_ACTION_KEY } from '@common/constants/log.constants';
-import { LogActions } from '@common/enum/log-actions';
+import { LogActions } from '@common/enum/LogActions';
 import { Log } from '@common/interfaces/ILog';
 
 import { IUserInfo } from '../interfaces/IUserInfo';

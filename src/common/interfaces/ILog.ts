@@ -1,4 +1,4 @@
-import { LogActions } from '@common/enum/log-actions';
+import { LogActions } from '@common/enum/LogActions';
 
 export interface Log<Extra = any> {
   action: LogActions;
