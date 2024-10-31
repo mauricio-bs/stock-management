@@ -5,6 +5,7 @@ import { CategoryModule } from './category/category.module';
 import { CompanyModule } from './company/company.module';
 import { ProductModule } from './product/product.module';
 import { SaleModule } from './sale/sale.module';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
@@ -13,6 +14,7 @@ import { SaleModule } from './sale/sale.module';
     CategoryModule,
     SaleModule,
     CompanyModule,
+    UserModule,
   ],
 })
 export class IndexModule {}

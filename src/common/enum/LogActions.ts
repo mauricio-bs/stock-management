@@ -5,6 +5,7 @@ export enum LogActions {
   // USER
   CREATE_USER = 'create-user',
   UPDATE_USER = 'update-user',
+  UPDATE_USER_PASSWORD = 'update-user-password',
   GET_ONE_USER = 'get-one-user',
   GET_USERS = 'get-users',
 
