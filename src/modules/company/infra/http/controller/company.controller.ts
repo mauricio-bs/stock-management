@@ -5,7 +5,6 @@ import {
   Body,
   Patch,
   Param,
-  Delete,
   HttpCode,
   HttpStatus,
   UseGuards,
@@ -16,7 +15,7 @@ import {
 
 import { LogAction } from '@common/decorator/log-actions.decorator';
 import { UserInfo } from '@common/decorator/user.decorator';
-import { LogActions } from '@common/enum/log-actions';
+import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
 import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
@@ -55,24 +54,6 @@ export class CompanyController {
         throw new ForbiddenException('Cannot update another company');
 
       return await this.service.update(id, data);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
-  }
-
-  @LogAction(LogActions.DELETE_COMPANY)
-  @UseGuards(JwtAuthGuard)
-  @HttpCode(HttpStatus.NO_CONTENT)
-  @Delete(':id')
-  async remove(
-    @UserInfo('company_id') company_id: string,
-    @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<void> {
-    try {
-      if (id !== company_id)
-        throw new ForbiddenException('Cannot delete another company');
-
-      await this.service.delete(id);
     } catch (error) {
       throw globalHttpErrorHandler(error);
     }
