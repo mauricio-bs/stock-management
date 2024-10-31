@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { Category } from './Category';
+import { CompanyPreferences } from './CompanyPreferences';
 import { Product } from './Product';
 import { Sale } from './Sale';
 import { User } from './User';
@@ -15,6 +16,7 @@ export class Company {
   public updated_at?: Date = new Date();
   public deleted_at?: Date;
   // relations
+  public preferences?: CompanyPreferences;
   public products?: Product[];
   public users?: User[];
   public categories?: Category[];

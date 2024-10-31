@@ -9,36 +9,60 @@ datasource db {
 }
 
 model Company {
-  id         String     @id @default(uuid()) @db.Uuid
-  name       String
-  cnpj       String
-  is_active  Boolean    @default(true)
-  phone      String?
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
-  deleted_at DateTime?
+  id          String              @id @default(uuid()) @db.Uuid
+  name        String
+  cnpj        String
+  is_active   Boolean             @default(true)
+  phone       String?
+  created_at  DateTime            @default(now())
+  updated_at  DateTime            @updatedAt
+  deleted_at  DateTime?
   // relations
-  products   Product[]
-  users      User[]
-  Category   Category[]
-  Sale       Sale[]
+  products    Product[]
+  users       User[]
+  categories  Category[]
+  sales       Sale[]
+  payments    Payment[]
+  preferences CompanyPreferences?
+  cash        Cash[]
 
   @@map("company")
 }
 
-model User {
-  id         String    @id @default(uuid()) @db.Uuid
-  name       String
-  document   String?
-  email      String    @unique
-  password   String
-  is_active  Boolean   @default(true)
-  created_at DateTime  @default(now())
-  updated_at DateTime  @updatedAt
-  deleted_at DateTime?
+model CompanyPreferences {
+  id                   String         @id @default(uuid()) @db.Uuid
+  default_credit_tax   Float?
+  default_debit_tax    Float?
+  default_payment_form payment_forms?
+  created_at           DateTime       @default(now())
+  updated_at           DateTime       @updatedAt
+  deleted_at           DateTime?
   // relations
-  company_id String    @db.Uuid
-  company    Company   @relation(fields: [company_id], references: [id], onUpdate: Cascade)
+  company_id           String         @unique @db.Uuid
+  company              Company        @relation(fields: [company_id], references: [id], onUpdate: Cascade)
+
+  @@map("company_preferences")
+}
+
+model User {
+  id                String            @id @default(uuid()) @db.Uuid
+  name              String
+  document          String?
+  email             String            @unique
+  password          String
+  is_active         Boolean           @default(true)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  deleted_at        DateTime?
+  // relations
+  company_id        String            @db.Uuid
+  company           Company           @relation(fields: [company_id], references: [id], onUpdate: Cascade)
+  sales             Sale[]
+  open_cash         Cash[]            @relation("opened_by")
+  closed_cash       Cash[]            @relation("closed_by")
+  cash_transactions CashTransaction[]
+  cash_widhdrawals  CashWidhdrawal[]
+  cash_closures     CashClosing[]
 
   @@index([id, company_id])
   @@map("user")
@@ -47,28 +71,31 @@ model User {
 enum unit_measure {
   UN
   M
+  L
   KG
   PCT
+  ROL
 }
 
 model Product {
-  id            String       @id @default(uuid()) @db.Uuid
-  name          String
-  is_active     Boolean      @default(true)
-  quantity      Float
-  cost_value    Decimal      @db.Money()
-  profit_margin Float        @db.DoublePrecision
-  price         Decimal      @db.Money
-  measure_unit  unit_measure
-  created_at    DateTime     @default(now())
-  updated_at    DateTime     @updatedAt
-  deleted_at    DateTime?
+  id                 String       @id @default(uuid()) @db.Uuid
+  name               String
+  is_active          Boolean      @default(true)
+  quantity           Float
+  min_stock_quantity Float?
+  cost_value         Decimal      @db.Money()
+  profit_margin      Float        @db.DoublePrecision
+  price              Decimal      @db.Money
+  measure_unit       unit_measure
+  created_at         DateTime     @default(now())
+  updated_at         DateTime     @updatedAt
+  deleted_at         DateTime?
   // relations
-  company_id    String       @db.Uuid
-  company       Company      @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  category_id   String       @db.Uuid
-  category      Category     @relation(fields: [category_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  SaleItems     SaleItems[]
+  company_id         String       @db.Uuid
+  company            Company      @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  category_id        String       @db.Uuid
+  category           Category     @relation(fields: [category_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  SaleItems          SaleItems[]
 
   @@index([id, company_id])
   @@map("product")
@@ -97,17 +124,21 @@ enum sale_status {
 }
 
 model Sale {
-  id             String      @id @default(uuid()) @db.Uuid
-  total          Decimal     @db.Money
-  total_discount Decimal?    @db.Money
-  status         sale_status @default(pending)
-  created_at     DateTime    @default(now())
-  updated_at     DateTime    @updatedAt
-  deleted_at     DateTime?
+  id                String            @id @default(uuid()) @db.Uuid
+  total             Decimal           @db.Money
+  total_discount    Decimal?          @db.Money
+  status            sale_status       @default(pending)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  deleted_at        DateTime?
   // relations
-  company_id     String      @db.Uuid
-  company        Company     @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  sale_items     SaleItems[]
+  company_id        String            @db.Uuid
+  company           Company           @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id           String            @db.Uuid
+  user              User              @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  sale_items        SaleItems[]
+  payment           Payment[]
+  cash_transactions CashTransaction[]
 
   @@index([id, company_id])
   @@map("sale")
@@ -130,4 +161,140 @@ model SaleItems {
   product        Product   @relation(fields: [product_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
   @@map("sale_items")
+}
+
+enum payment_forms {
+  credit_card
+  debit_card
+  pix
+  cash
+  bank_slip
+}
+
+model Payment {
+  id                    String        @id @default(uuid()) @db.Uuid
+  payment_form          payment_forms
+  total_value           Decimal       @db.Money
+  installments_quantity Int           @default(1)
+  taxes_per_installment Float         @default(0) @db.DoublePrecision
+  created_at            DateTime      @default(now())
+  updated_at            DateTime      @updatedAt
+  deleted_at            DateTime?
+  // relations
+  company_id            String        @db.Uuid
+  company               Company       @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sale_id               String        @db.Uuid
+  sale                  Sale          @relation(fields: [sale_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  installments          Installment[]
+
+  @@index([id, company_id])
+  @@map("payment")
+}
+
+model Installment {
+  id                 String    @id @default(uuid()) @db.Uuid
+  installment_number Int       @default(1)
+  amount             Decimal   @db.Money
+  tax_value          Decimal?  @db.Money
+  created_at         DateTime  @default(now())
+  updated_at         DateTime  @updatedAt
+  deleted_at         DateTime?
+  // relations
+  payment_id         String    @db.Uuid
+  payment            Payment   @relation(fields: [payment_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+
+  @@map("installment")
+}
+
+enum cash_status {
+  open
+  closed
+}
+
+// Cash flow
+model Cash {
+  id                String            @id @default(uuid()) @db.Uuid
+  opening_at        DateTime
+  closing_at        DateTime?
+  opening_balance   Decimal           @db.Money
+  closing_balance   Decimal?          @db.Money
+  status            cash_status       @default(open)
+  created_at        DateTime          @default(now())
+  updated_at        DateTime          @updatedAt
+  deleted_at        DateTime?
+  // relations
+  company_id        String            @db.Uuid
+  company           Company           @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  opened_by_user_id String            @db.Uuid
+  oppened_by        User              @relation("opened_by", fields: [opened_by_user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  closed_by_user_id String?           @db.Uuid
+  closed_by         User?             @relation("closed_by", fields: [closed_by_user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  transactions      CashTransaction[]
+  withdrawals       CashWidhdrawal[]
+  closures          CashClosing?
+
+  @@index([id, company_id])
+  @@map("cash")
+}
+
+enum transaction_type {
+  income
+  expense
+}
+
+model CashTransaction {
+  id          String           @id @default(uuid()) @db.Uuid
+  type        transaction_type
+  description String?
+  amount      Decimal          @db.Money
+  created_at  DateTime         @default(now())
+  updated_at  DateTime         @updatedAt
+  deleted_at  DateTime?
+  // relations
+  cash_id     String           @db.Uuid
+  cash        Cash             @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sale_id     String?          @db.Uuid
+  sale        Sale?            @relation(fields: [sale_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id     String?          @db.Uuid
+  user        User?            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([id, cash_id])
+  @@map("cash_transaction")
+}
+
+model CashWidhdrawal {
+  id         String    @id @default(uuid()) @db.Uuid
+  amount     Decimal   @db.Money
+  reason     String
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  deleted_at DateTime?
+  // relations
+  cash_id    String    @db.Uuid
+  cash       Cash      @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id    String    @db.Uuid
+  user       User      @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([id, cash_id])
+  @@map("cash_withdrawal")
+}
+
+model CashClosing {
+  id            String    @id @default(uuid()) @db.Uuid
+  total_income  Decimal   @db.Money
+  total_expense Decimal   @db.Money
+  difference    Decimal?  @db.Money
+  notes         String?   @db.Text
+  closing_date  DateTime
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+  deleted_at    DateTime?
+  // relations
+  cash_id       String    @unique @db.Uuid
+  cash          Cash      @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id       String    @db.Uuid
+  user          User      @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+
+  @@index([id, cash_id])
+  @@map("cash_closing")
 }
