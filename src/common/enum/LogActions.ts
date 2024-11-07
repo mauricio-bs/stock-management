@@ -1,4 +1,7 @@
 export enum LogActions {
+  // HEALTH CHECK
+  HEALTH_CHECK = 'health-check',
+
   // AUTH
   SIGNIN = 'SIGNIN',
 
@@ -36,6 +39,15 @@ export enum LogActions {
   DELETE_SALE = 'delete-sale',
   GET_ONE_SALE = 'get-one-sale',
   GET_SALES = 'get-sales',
+
+  // CASH
+  OPEN_CASH = 'open-cash',
+  CLOSE_CASH = 'close-cash',
+  GET_ONE_CASH = 'get-one-cash',
+  GET_CASHIES = 'get-cashies',
+
+  // CASH TRANSACTION
+  CREATE_CASH_TRANSACTION = 'create-cash-transaction',
 
   UNKNOWN = 'unknown-action',
 }

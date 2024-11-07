@@ -8,6 +8,8 @@ import {
 } from '@nestjs/terminus';
 
 import { PrismaService } from '@common/database/service/prisma.service';
+import { LogAction } from '@common/decorator/log-actions.decorator';
+import { LogActions } from '@common/enum/LogActions';
 
 @Controller('health-check')
 export class HealthController {
@@ -19,6 +21,7 @@ export class HealthController {
     private readonly prisma: PrismaService,
   ) {}
 
+  @LogAction(LogActions.HEALTH_CHECK)
   @Get()
   @HealthCheck()
   async checkDisk() {
