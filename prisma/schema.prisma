@@ -238,8 +238,13 @@ model Cash {
 }
 
 enum transaction_type {
-  income
-  expense
+  opening
+  sale
+  receipt
+  widhdrawal
+  supply
+  adjustment_in
+  adjustment_out
 }
 
 model CashTransaction {
@@ -284,6 +289,7 @@ model CashClosing {
   total_income  Decimal   @db.Money
   total_expense Decimal   @db.Money
   difference    Decimal?  @db.Money
+  final_balance Decimal   @db.Money
   notes         String?   @db.Text
   closing_date  DateTime
   created_at    DateTime  @default(now())
