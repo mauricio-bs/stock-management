@@ -5,11 +5,12 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { ConfigurationsModule } from '@common/config/configurations.module';
 import { DatabaseModule } from '@common/database/database.module';
 import { HttpCacheInterceptor } from '@common/interceptors/http-cache.interceptor';
+import { HealthModule } from '@modules/health/health.module';
 
 import { IndexModule } from './modules/index.module';
 
 @Module({
-  imports: [ConfigurationsModule, DatabaseModule, IndexModule],
+  imports: [HealthModule, ConfigurationsModule, DatabaseModule, IndexModule],
   providers: [
     { provide: APP_GUARD, useClass: ThrottlerGuard },
     { provide: APP_INTERCEPTOR, useClass: HttpCacheInterceptor },

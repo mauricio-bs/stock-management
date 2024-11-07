@@ -28,6 +28,7 @@
     "@nestjs/mapped-types": "^2.0.5",
     "@nestjs/passport": "^10.0.3",
     "@nestjs/platform-express": "^10.0.0",
+    "@nestjs/terminus": "^10.2.3",
     "@nestjs/throttler": "^6.2.1",
     "@prisma/client": "^5.21.1",
     "@tirke/node-cache-manager-ioredis": "^3.6.0",
