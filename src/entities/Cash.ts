@@ -4,7 +4,7 @@ import { ECashStatus } from '@common/enum/ECashStatus';
 
 import { CashClosing } from './CashClosing';
 import { CashTransaction } from './CashTransaction';
-import { CashWithdrawal } from './CashWithdrawal';
+import { CashWidhdrawal } from './CashWidhdrawal';
 import { User } from './User';
 
 export class Cash {
@@ -23,8 +23,8 @@ export class Cash {
   public oppened_by?: User;
   public closed_by_user_id?: string;
   public closed_by?: User;
-  public transatcions?: CashTransaction[];
-  public withdrawals?: CashWithdrawal[];
+  public transactions?: CashTransaction[];
+  public withdrawals?: CashWidhdrawal[];
   public closures?: CashClosing;
 
   constructor(props: Omit<Cash, 'id'>, id?: string) {

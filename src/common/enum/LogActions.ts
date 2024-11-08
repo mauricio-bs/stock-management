@@ -48,6 +48,9 @@ export enum LogActions {
 
   // CASH TRANSACTION
   CREATE_CASH_TRANSACTION = 'create-cash-transaction',
+  UPDATE_CASH_TRANSACTION = 'update-cash-transaction',
+  DELETE_CASH_TRANSACTION = 'delete-cash-transaction',
+  GET_ONE_CASH_TRANSACTION = 'get-one-cash-transaction',
 
   UNKNOWN = 'unknown-action',
 }

@@ -7,6 +7,7 @@ export class CashClosing {
   public total_income: number;
   public total_expense: number;
   public difference?: number;
+  public final_balance: number;
   public notes?: string;
   public closing_date: Date;
   public cash_id: string;
