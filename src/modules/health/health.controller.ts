@@ -24,7 +24,7 @@ export class HealthController {
   @LogAction(LogActions.HEALTH_CHECK)
   @Get()
   @HealthCheck()
-  async checkDisk() {
+  async healthCheck() {
     return await this.health.check([
       // Disk
       async () =>
