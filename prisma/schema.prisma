@@ -9,22 +9,23 @@ datasource db {
 }
 
 model Company {
-  id          String              @id @default(uuid()) @db.Uuid
-  name        String
-  cnpj        String
-  is_active   Boolean             @default(true)
-  phone       String?
-  created_at  DateTime            @default(now())
-  updated_at  DateTime            @updatedAt
-  deleted_at  DateTime?
+  id            String              @id @default(uuid()) @db.Uuid
+  name          String
+  cnpj          String
+  is_active     Boolean             @default(true)
+  phone         String?
+  created_at    DateTime            @default(now())
+  updated_at    DateTime            @updatedAt
+  deleted_at    DateTime?
   // relations
-  products    Product[]
-  users       User[]
-  categories  Category[]
-  sales       Sale[]
-  payments    Payment[]
-  preferences CompanyPreferences?
-  cash        Cash[]
+  products      Product[]
+  users         User[]
+  categories    Category[]
+  sales         Sale[]
+  payments      Payment[]
+  preferences   CompanyPreferences?
+  cash          Cash[]
+  cash_sessions CashSession[]
 
   @@map("company")
 }
@@ -58,8 +59,8 @@ model User {
   company_id        String            @db.Uuid
   company           Company           @relation(fields: [company_id], references: [id], onUpdate: Cascade)
   sales             Sale[]
-  open_cash         Cash[]            @relation("opened_by")
-  closed_cash       Cash[]            @relation("closed_by")
+  open_cash         CashSession[]     @relation("opened_by")
+  closed_cash       CashSession[]     @relation("closed_by")
   cash_transactions CashTransaction[]
   cash_widhdrawals  CashWidhdrawal[]
   cash_closures     CashClosing[]
@@ -95,7 +96,7 @@ model Product {
   company            Company      @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   category_id        String       @db.Uuid
   category           Category     @relation(fields: [category_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  SaleItems          SaleItems[]
+  sale_items         SaleItems[]
 
   @@index([id, company_id])
   @@map("product")
@@ -111,7 +112,7 @@ model Category {
   // relations
   company_id String    @db.Uuid
   company    Company   @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  Product    Product[]
+  products   Product[]
 
   @@index([id, company_id])
   @@map("category")
@@ -196,6 +197,7 @@ model Installment {
   installment_number Int       @default(1)
   amount             Decimal   @db.Money
   tax_value          Decimal?  @db.Money
+  receivied_at       DateTime  @default(now())
   created_at         DateTime  @default(now())
   updated_at         DateTime  @updatedAt
   deleted_at         DateTime?
@@ -206,18 +208,35 @@ model Installment {
   @@map("installment")
 }
 
+// Cash flow
+model Cash {
+  id            String        @id @default(uuid()) @db.Uuid
+  name          String
+  location      String?
+  is_active     Boolean       @default(true)
+  created_at    DateTime      @default(now())
+  updated_at    DateTime      @updatedAt
+  deleted_at    DateTime?
+  // relations
+  company_id    String        @db.Uuid
+  company       Company       @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  cash_sessions CashSession[]
+
+  @@index([id, company_id])
+  @@map("cash")
+}
+
 enum cash_status {
   open
   closed
 }
 
-// Cash flow
-model Cash {
+model CashSession {
   id                String            @id @default(uuid()) @db.Uuid
-  opening_at        DateTime
-  closing_at        DateTime?
   opening_balance   Decimal           @db.Money
   closing_balance   Decimal?          @db.Money
+  opening_at        DateTime
+  closing_at        DateTime?
   status            cash_status       @default(open)
   created_at        DateTime          @default(now())
   updated_at        DateTime          @updatedAt
@@ -225,16 +244,18 @@ model Cash {
   // relations
   company_id        String            @db.Uuid
   company           Company           @relation(fields: [company_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  cash_id           String            @db.Uuid
+  cash              Cash              @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
   opened_by_user_id String            @db.Uuid
   oppened_by        User              @relation("opened_by", fields: [opened_by_user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   closed_by_user_id String?           @db.Uuid
   closed_by         User?             @relation("closed_by", fields: [closed_by_user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
   transactions      CashTransaction[]
-  withdrawals       CashWidhdrawal[]
+  widhdrawals       CashWidhdrawal[]
   closures          CashClosing?
 
   @@index([id, company_id])
-  @@map("cash")
+  @@map("cash_session")
 }
 
 enum transaction_type {
@@ -248,62 +269,63 @@ enum transaction_type {
 }
 
 model CashTransaction {
-  id          String           @id @default(uuid()) @db.Uuid
-  type        transaction_type
-  description String?
-  amount      Decimal          @db.Money
-  created_at  DateTime         @default(now())
-  updated_at  DateTime         @updatedAt
-  deleted_at  DateTime?
+  id               String           @id @default(uuid()) @db.Uuid
+  type             transaction_type
+  description      String?
+  amount           Decimal          @db.Money
+  transaction_date DateTime         @default(now())
+  created_at       DateTime         @default(now())
+  updated_at       DateTime         @updatedAt
+  deleted_at       DateTime?
   // relations
-  cash_id     String           @db.Uuid
-  cash        Cash             @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  sale_id     String?          @db.Uuid
-  sale        Sale?            @relation(fields: [sale_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  user_id     String?          @db.Uuid
-  user        User?            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
-  widhdrawal  CashWidhdrawal?
+  cash_session_id  String?          @db.Uuid
+  cash_session     CashSession?     @relation(fields: [cash_session_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  sale_id          String?          @db.Uuid
+  sale             Sale?            @relation(fields: [sale_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id          String           @db.Uuid
+  user             User             @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  widhdrawals      CashWidhdrawal?
 
-  @@index([id, cash_id])
+  @@index([id, cash_session_id])
   @@map("cash_transaction")
 }
 
 model CashWidhdrawal {
-  id             String          @id @default(uuid()) @db.Uuid
-  amount         Decimal         @db.Money
-  reason         String
-  created_at     DateTime        @default(now())
-  updated_at     DateTime        @updatedAt
-  deleted_at     DateTime?
+  id              String          @id @default(uuid()) @db.Uuid
+  amount          Decimal         @db.Money
+  reason          String
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+  deleted_at      DateTime?
   // relations
-  transaction_id String          @unique @db.Uuid
-  transaction    CashTransaction @relation(fields: [transaction_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  cash_id        String          @db.Uuid
-  cash           Cash            @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  user_id        String          @db.Uuid
-  user           User            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  transaction_id  String          @unique @db.Uuid
+  transaction     CashTransaction @relation(fields: [transaction_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cash_session_id String          @db.Uuid
+  cash_session    CashSession     @relation(fields: [cash_session_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id         String          @db.Uuid
+  user            User            @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
-  @@index([id, cash_id])
+  @@index([id, cash_session_id])
   @@map("cash_withdrawal")
 }
 
 model CashClosing {
-  id            String    @id @default(uuid()) @db.Uuid
-  total_income  Decimal   @db.Money
-  total_expense Decimal   @db.Money
-  difference    Decimal?  @db.Money
-  final_balance Decimal   @db.Money
-  notes         String?   @db.Text
-  closing_date  DateTime
-  created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
-  deleted_at    DateTime?
+  id              String      @id @default(uuid()) @db.Uuid
+  total_income    Decimal     @db.Money
+  total_expense   Decimal     @db.Money
+  difference      Decimal?    @db.Money
+  final_balance   Decimal     @db.Money
+  notes           String?     @db.Text
+  closing_date    DateTime
+  created_at      DateTime    @default(now())
+  updated_at      DateTime    @updatedAt
+  deleted_at      DateTime?
   // relations
-  cash_id       String    @unique @db.Uuid
-  cash          Cash      @relation(fields: [cash_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
-  user_id       String    @db.Uuid
-  user          User      @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
+  cash_session_id String      @unique @db.Uuid
+  cash_session    CashSession @relation(fields: [cash_session_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  user_id         String      @db.Uuid
+  user            User        @relation(fields: [user_id], references: [id], onUpdate: Cascade, onDelete: Restrict)
 
-  @@index([id, cash_id])
+  @@index([id, cash_session_id])
   @@map("cash_closing")
 }

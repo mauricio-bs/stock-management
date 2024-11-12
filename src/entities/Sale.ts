@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import { ESaleStatus } from '@common/enum/ESaleStatus';
 
+import { Payment } from './Payment';
 import { SaleItem } from './SaleItem';
 import { User } from './User';
 
@@ -18,6 +19,7 @@ export class Sale {
   public sale_items?: SaleItem[];
   public user_id: string;
   public user?: User;
+  public payments?: Payment[];
 
   constructor(props: Omit<Sale, 'id'>, id?: string) {
     Object.assign(this, props);

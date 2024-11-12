@@ -10,7 +10,7 @@ export class CashClosing {
   public final_balance: number;
   public notes?: string;
   public closing_date: Date;
-  public cash_id: string;
+  public cash_session_id: string;
   public created_at?: Date = new Date();
   public updated_at?: Date = new Date();
   public deleted_at?: Date;
