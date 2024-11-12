@@ -18,7 +18,6 @@ import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { Category } from '@entities/Category';
 import { CreateCategoryDTO } from '@modules/category/domain/dto/create-category.dto';
 import { FindAllCategoriesDTO } from '@modules/category/domain/dto/find-all-categories.dto';
@@ -37,11 +36,7 @@ export class CategoryController {
     @UserInfo('company_id') company_id: string,
     @Body() data: CreateCategoryDTO,
   ): Promise<Category> {
-    try {
-      return await this.service.create({ ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create({ ...data, company_id });
   }
 
   @LogAction(LogActions.UPDATE_CATEGORY)
@@ -52,11 +47,7 @@ export class CategoryController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateCategoryDTO,
   ): Promise<Category> {
-    try {
-      return await this.service.update(id, { ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, { ...data, company_id });
   }
 
   @LogAction(LogActions.DELETE_CATEGORY)
@@ -66,11 +57,7 @@ export class CategoryController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
-    try {
-      return await this.service.delete(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.delete(id, company_id);
   }
 
   @LogAction(LogActions.GET_ONE_CATEGORY)
@@ -80,11 +67,7 @@ export class CategoryController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Category> {
-    try {
-      return await this.service.findOneById(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id, company_id);
   }
 
   @LogAction(LogActions.GET_CATEGORIES)
@@ -94,10 +77,6 @@ export class CategoryController {
     @UserInfo('company_id') company_id: string,
     @Query() filters: FindAllCategoriesDTO,
   ): Promise<PaginatedResult<Category>> {
-    try {
-      return await this.service.findAll({ ...filters, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findAll({ ...filters, company_id });
   }
 }

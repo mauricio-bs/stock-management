@@ -10,62 +10,59 @@ import {
   UseGuards,
   ParseUUIDPipe,
   Query,
+  Delete,
 } from '@nestjs/common';
 
 import { LogAction } from '@common/decorator/log-actions.decorator';
 import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
-import { IUserInfo } from '@common/interfaces/IUserInfo';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { Cash } from '@entities/Cash';
-import { FindAllCashesDTO } from '@modules/cash/domain/dto/cash/find-all-cashies.dto';
-import { OpenCashDTO } from '@modules/cash/domain/dto/cash/open-cash.dto';
+import { CreateCashDTO } from '@modules/cash/domain/dto/cash/create-cash.dto';
+import { FindAllCashiesDTO } from '@modules/cash/domain/dto/cash/find-all-cashies.dto';
 import { CloseCashDTO } from '@modules/cash/domain/dto/closure/close-cash.dto';
 import { ICashService } from '@modules/cash/domain/service/ICash.service';
 
 @Controller('cash')
 export class CashController {
-  constructor(private readonly cashService: ICashService) {}
+  constructor(private readonly service: ICashService) {}
 
-  @LogAction(LogActions.OPEN_CASH)
+  @LogAction(LogActions.CREATE_CASH)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async open(
-    @UserInfo() user: IUserInfo,
-    @Body() data: OpenCashDTO,
+  async create(
+    @UserInfo('company_id') company_id: string,
+    @Body() data: CreateCashDTO,
   ): Promise<Cash> {
-    try {
-      return await this.cashService.open({
-        ...data,
-        opened_by_user_id: user.id,
-        company_id: user.company_id,
-      });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create({ ...data, company_id });
   }
 
-  @LogAction(LogActions.CLOSE_CASH)
+  @LogAction(LogActions.UPDATE_CASH)
   @UseGuards(JwtAuthGuard)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
-  async close(
-    @UserInfo() user: IUserInfo,
+  async update(
+    @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: CloseCashDTO,
   ): Promise<Cash> {
-    try {
-      return await this.cashService.close(id, {
-        ...data,
-        user_id: user.id,
-        company_id: user.company_id,
-      });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, {
+      ...data,
+      company_id,
+    });
+  }
+
+  @LogAction(LogActions.DELETE_CASH)
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Delete(':id')
+  async delete(
+    @UserInfo('company_id') company_id: string,
+    @Param('id', ParseUUIDPipe) id: string,
+  ): Promise<void> {
+    await this.service.delete(id, company_id);
   }
 
   @LogAction(LogActions.GET_ONE_CASH)
@@ -76,11 +73,7 @@ export class CashController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Cash> {
-    try {
-      return await this.cashService.findOneById(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id, company_id);
   }
 
   @LogAction(LogActions.GET_CASHIES)
@@ -89,12 +82,8 @@ export class CashController {
   @Get()
   async findAll(
     @UserInfo('company_id') company_id: string,
-    @Query() filters: FindAllCashesDTO,
+    @Query() filters: FindAllCashiesDTO,
   ): Promise<PaginatedResult<Cash>> {
-    try {
-      return await this.cashService.findAll({ ...filters, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findAll({ ...filters, company_id });
   }
 }

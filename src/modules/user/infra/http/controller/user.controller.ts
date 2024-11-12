@@ -17,7 +17,6 @@ import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { User } from '@entities/User';
 import { CreateUserDTO } from '@modules/user/domain/dto/create-user.dto';
 import { FindAllUsersDTO } from '@modules/user/domain/dto/find-all-users.dto';
@@ -33,11 +32,7 @@ export class UserController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() data: CreateUserDTO): Promise<Omit<User, 'password'>> {
-    try {
-      return await this.service.create(data);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create(data);
   }
 
   @LogAction(LogActions.UPDATE_USER)
@@ -49,11 +44,7 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateUserDTO,
   ): Promise<Omit<User, 'password'>> {
-    try {
-      return await this.service.update(id, { ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, { ...data, company_id });
   }
 
   @LogAction(LogActions.UPDATE_USER_PASSWORD)
@@ -65,11 +56,7 @@ export class UserController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateUserPasswordDTO,
   ): Promise<void> {
-    try {
-      await this.service.updatePassword(id, { ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    await this.service.updatePassword(id, { ...data, company_id });
   }
 
   @LogAction(LogActions.GET_ONE_USER)
@@ -80,11 +67,7 @@ export class UserController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Omit<User, 'password'>> {
-    try {
-      return await this.service.findOneById(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id, company_id);
   }
 
   @LogAction(LogActions.GET_USERS)
@@ -95,10 +78,6 @@ export class UserController {
     @UserInfo('company_id') company_id: string,
     @Query() filters: FindAllUsersDTO,
   ): Promise<PaginatedResult<Omit<User, 'password'>>> {
-    try {
-      return await this.service.findAll({ ...filters, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findAll({ ...filters, company_id });
   }
 }

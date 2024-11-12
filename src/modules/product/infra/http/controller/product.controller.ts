@@ -18,7 +18,6 @@ import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { Product } from '@entities/Product';
 import { CreateProductDTO } from '@modules/product/domain/dto/create-product.dto';
 import { FindAllProductsDTO } from '@modules/product/domain/dto/find-all-products.dto';
@@ -37,11 +36,7 @@ export class ProductController {
     @UserInfo('company_id') company_id: string,
     @Body() data: CreateProductDTO,
   ): Promise<Product> {
-    try {
-      return await this.service.create({ ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create({ ...data, company_id });
   }
 
   @LogAction(LogActions.UPDATE_PRODUCT)
@@ -52,11 +47,7 @@ export class ProductController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateProductDTO,
   ): Promise<Product> {
-    try {
-      return await this.service.update(id, { ...data, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, { ...data, company_id });
   }
 
   @LogAction(LogActions.DELETE_PRODUCT)
@@ -66,11 +57,7 @@ export class ProductController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
-    try {
-      await this.service.delete(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    await this.service.delete(id, company_id);
   }
 
   @LogAction(LogActions.GET_ONE_PRODUCT)
@@ -80,11 +67,7 @@ export class ProductController {
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<Product> {
-    try {
-      return await this.service.findOneById(id, company_id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id, company_id);
   }
 
   @LogAction(LogActions.GET_PRODUCTS)
@@ -94,10 +77,6 @@ export class ProductController {
     @UserInfo('company_id') company_id: string,
     @Query() filters: FindAllProductsDTO,
   ): Promise<PaginatedResult<Product>> {
-    try {
-      return await this.service.findAll({ ...filters, company_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findAll({ ...filters, company_id });
   }
 }

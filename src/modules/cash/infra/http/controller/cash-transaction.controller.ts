@@ -16,11 +16,10 @@ import { LogAction } from '@common/decorator/log-actions.decorator';
 import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { CashTransaction } from '@entities/CashTransaction';
 import { CreateCashTransactionDTO } from '@modules/cash/domain/dto/transaction/create-cash-transaction.dto';
-import { ICashTransactionService } from '@modules/cash/domain/service/ICashTransaction.service';
 import { UpdateCashTransactionDTO } from '@modules/cash/domain/dto/transaction/update-cash-transaction.dto';
+import { ICashTransactionService } from '@modules/cash/domain/service/ICashTransaction.service';
 
 @Controller('cash/transaction')
 export class CashTransactionController {
@@ -34,11 +33,7 @@ export class CashTransactionController {
     @UserInfo('id') user_id: string,
     @Body() data: CreateCashTransactionDTO,
   ): Promise<CashTransaction> {
-    try {
-      return await this.service.create({ ...data, user_id });
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create({ ...data, user_id });
   }
 
   @LogAction(LogActions.UPDATE_CASH_TRANSACTION)
@@ -49,11 +44,7 @@ export class CashTransactionController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateCashTransactionDTO,
   ): Promise<CashTransaction> {
-    try {
-      return await this.service.update(id, data);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, data);
   }
 
   @LogAction(LogActions.DELETE_CASH_TRANSACTION)
@@ -61,11 +52,7 @@ export class CashTransactionController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @Delete(':id')
   async delete(@Param('id', ParseUUIDPipe) id: string): Promise<void> {
-    try {
-      return await this.service.delete(id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.delete(id);
   }
 
   @LogAction(LogActions.GET_ONE_CASH_TRANSACTION)
@@ -75,10 +62,6 @@ export class CashTransactionController {
   async findOne(
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CashTransaction> {
-    try {
-      return await this.service.findOneById(id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id);
   }
 }

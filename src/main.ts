@@ -5,6 +5,7 @@ import helmet from 'helmet';
 import { WinstonModule } from 'nest-winston';
 
 import { loggerOptions } from '@common/config/log/logger.config';
+import { HttpExceptionFilter } from '@common/interceptors/http-exception.filter';
 
 import { AppModule } from './app.module';
 
@@ -26,6 +27,8 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
     }),
   );
+
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(process.env.PORT ?? 3000);
 }

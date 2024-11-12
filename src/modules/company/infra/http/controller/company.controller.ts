@@ -18,7 +18,6 @@ import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
-import { globalHttpErrorHandler } from '@common/utils/error/global-error-handler';
 import { Company } from '@entities/Company';
 import { CreateCompanyDTO } from '@modules/company/domain/dto/create-company.dto';
 import { FindAllCompaniesDTO } from '@modules/company/domain/dto/find-all-companies.dto';
@@ -33,11 +32,7 @@ export class CompanyController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() data: CreateCompanyDTO): Promise<Company> {
-    try {
-      return await this.service.create(data);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.create(data);
   }
 
   @LogAction(LogActions.UPDATE_COMPANY)
@@ -49,14 +44,10 @@ export class CompanyController {
     @Param('id', ParseUUIDPipe) id: string,
     @Body() data: UpdateCompanyDTO,
   ): Promise<Company> {
-    try {
-      if (id !== company_id)
-        throw new ForbiddenException('Cannot update another company');
+    if (id !== company_id)
+      throw new ForbiddenException('Cannot update another company');
 
-      return await this.service.update(id, data);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.update(id, data);
   }
 
   @LogAction(LogActions.GET_ONE_COMPANY)
@@ -64,11 +55,7 @@ export class CompanyController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: string): Promise<Company> {
-    try {
-      return await this.service.findOneById(id);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findOneById(id);
   }
 
   @LogAction(LogActions.GET_COMPANIES)
@@ -78,10 +65,6 @@ export class CompanyController {
   async findAll(
     @Query() filters: FindAllCompaniesDTO,
   ): Promise<PaginatedResult<Company>> {
-    try {
-      return await this.service.findAll(filters);
-    } catch (error) {
-      throw globalHttpErrorHandler(error);
-    }
+    return await this.service.findAll(filters);
   }
 }
