@@ -21,7 +21,7 @@ import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
 import { Cash } from '@entities/Cash';
 import { CreateCashDTO } from '@modules/cash/domain/dto/cash/create-cash.dto';
 import { FindAllCashiesDTO } from '@modules/cash/domain/dto/cash/find-all-cashies.dto';
-import { CloseCashDTO } from '@modules/cash/domain/dto/closure/close-cash.dto';
+import { UpdateCashDTO } from '@modules/cash/domain/dto/cash/update-cash.dto';
 import { ICashService } from '@modules/cash/domain/service/ICash.service';
 
 @Controller('cash')
@@ -46,7 +46,7 @@ export class CashController {
   async update(
     @UserInfo('company_id') company_id: string,
     @Param('id', ParseUUIDPipe) id: string,
-    @Body() data: CloseCashDTO,
+    @Body() data: UpdateCashDTO,
   ): Promise<Cash> {
     return await this.service.update(id, {
       ...data,

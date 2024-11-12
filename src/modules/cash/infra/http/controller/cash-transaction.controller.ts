@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   Patch,
   Post,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 
@@ -16,12 +17,14 @@ import { LogAction } from '@common/decorator/log-actions.decorator';
 import { UserInfo } from '@common/decorator/user.decorator';
 import { LogActions } from '@common/enum/LogActions';
 import { JwtAuthGuard } from '@common/guards/Jwt.guard';
+import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
 import { CashTransaction } from '@entities/CashTransaction';
 import { CreateCashTransactionDTO } from '@modules/cash/domain/dto/transaction/create-cash-transaction.dto';
+import { FindAllCashTransactionsDTO } from '@modules/cash/domain/dto/transaction/find-all-cash-transacitons.dto';
 import { UpdateCashTransactionDTO } from '@modules/cash/domain/dto/transaction/update-cash-transaction.dto';
 import { ICashTransactionService } from '@modules/cash/domain/service/ICashTransaction.service';
 
-@Controller('cash/transaction')
+@Controller('cash/:cash_id/session/:session_id/transaction')
 export class CashTransactionController {
   constructor(private readonly service: ICashTransactionService) {}
 
@@ -31,9 +34,10 @@ export class CashTransactionController {
   @Post()
   async create(
     @UserInfo('id') user_id: string,
+    @Param('session_id', ParseUUIDPipe) cash_session_id: string,
     @Body() data: CreateCashTransactionDTO,
   ): Promise<CashTransaction> {
-    return await this.service.create({ ...data, user_id });
+    return await this.service.create(cash_session_id, { ...data, user_id });
   }
 
   @LogAction(LogActions.UPDATE_CASH_TRANSACTION)
@@ -63,5 +67,16 @@ export class CashTransactionController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<CashTransaction> {
     return await this.service.findOneById(id);
+  }
+
+  @LogAction(LogActions.GET_CASH_TRANSACTIONS)
+  @UseGuards(JwtAuthGuard)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async findAll(
+    @Param('session_id', ParseUUIDPipe) cash_session_id: string,
+    @Query() filters: FindAllCashTransactionsDTO,
+  ): Promise<PaginatedResult<CashTransaction>> {
+    return await this.service.findAll(cash_session_id, filters);
   }
 }

@@ -1,46 +1,24 @@
-import {
-  IsDateString,
-  IsEmpty,
-  IsEnum,
-  IsOptional,
-  IsUUID,
-} from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsBoolean, IsEmpty, IsOptional, IsString } from 'class-validator';
 
 import { PaginationDTO } from '@common/dto/Pagination.dto';
-import { ECashStatus } from '@common/enum/ECashStatus';
+import { boolConverter } from '@common/utils/boolConverter';
 
-export class FindAllCashesDTO extends PaginationDTO {
-  // Open date range filter
+export class FindAllCashiesDTO extends PaginationDTO {
+  @IsString()
+  @IsString()
+  name?: string;
+
+  @IsString()
+  @IsString()
+  location?: string;
+
+  @Transform(({ value }) => boolConverter(value))
   @IsOptional()
-  @IsDateString()
-  start_date_open?: Date;
+  @IsBoolean()
+  is_active?: boolean;
 
-  @IsOptional()
-  @IsDateString()
-  end_date_open?: Date;
-
-  // Close date range filter
-  @IsOptional()
-  @IsDateString()
-  start_date_close?: Date;
-
-  @IsOptional()
-  @IsDateString()
-  end_date_close?: Date;
-
-  @IsOptional()
-  @IsEnum(ECashStatus)
-  status?: ECashStatus;
-
-  @IsOptional()
-  @IsUUID(4)
-  opened_by_user_id?: string;
-
-  @IsOptional()
-  @IsUUID(4)
-  closed_by_user_id?: string;
-
-  // Load from authorization
+  // Filled by auth
   @IsEmpty()
   company_id: string;
 }

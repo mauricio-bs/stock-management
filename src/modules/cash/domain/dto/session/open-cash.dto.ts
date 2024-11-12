@@ -1,13 +1,14 @@
 import { IsDate, IsEmpty, IsNumber, Min } from 'class-validator';
 
 import { ECashStatus } from '@common/enum/ECashStatus';
-import { Cash } from '@entities/Cash';
+import { CashSession } from '@entities/CashSession';
 
-export class OpenCashDTO
+export class OpenCashSessionDTO
   implements
     Omit<
-      Cash,
+      CashSession,
       | 'id'
+      | 'cash_id'
       | 'created_at'
       | 'updated_at'
       | 'deleted_at'
@@ -16,8 +17,8 @@ export class OpenCashDTO
       | 'oppened_by'
       | 'closed_by_user_id'
       | 'closed_by'
-      | 'transatcions'
-      | 'withdrawals'
+      | 'transactions'
+      | 'widhdrawals'
       | 'closures'
     >
 {

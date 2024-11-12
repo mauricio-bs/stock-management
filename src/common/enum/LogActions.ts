@@ -41,16 +41,24 @@ export enum LogActions {
   GET_SALES = 'get-sales',
 
   // CASH
-  OPEN_CASH = 'open-cash',
-  CLOSE_CASH = 'close-cash',
+  CREATE_CASH = 'create-cash',
+  UPDATE_CASH = 'update-cash',
+  DELETE_CASH = 'delete-cash',
   GET_ONE_CASH = 'get-one-cash',
   GET_CASHIES = 'get-cashies',
+
+  // CASH SESSION
+  OPEN_CASH = 'open-cash',
+  CLOSE_CASH = 'close-cash',
+  GET_ONE_CASH_SESSION = 'get-one-cash-session',
+  GET_CASH_SESSIONS = 'get-cash-sessions',
 
   // CASH TRANSACTION
   CREATE_CASH_TRANSACTION = 'create-cash-transaction',
   UPDATE_CASH_TRANSACTION = 'update-cash-transaction',
   DELETE_CASH_TRANSACTION = 'delete-cash-transaction',
   GET_ONE_CASH_TRANSACTION = 'get-one-cash-transaction',
+  GET_CASH_TRANSACTIONS = 'get-cash-transactions',
 
   UNKNOWN = 'unknown-action',
 }

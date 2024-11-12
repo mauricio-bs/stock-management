@@ -1,12 +1,10 @@
-import { OmitType, PartialType } from '@nestjs/mapped-types';
-import { IsOptional, IsUUID } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { IsEmpty } from 'class-validator';
 
-import { OpenCashDTO } from './open-cash.dto';
+import { CreateCashDTO } from './create-cash.dto';
 
-export class UpdateCashDTO extends PartialType(
-  OmitType(OpenCashDTO, ['status']),
-) {
-  @IsOptional()
-  @IsUUID(4)
-  opened_by_user_id?: string;
+export class UpdateCashDTO extends PartialType(CreateCashDTO) {
+  // Filled by auth
+  @IsEmpty()
+  company_id: string;
 }

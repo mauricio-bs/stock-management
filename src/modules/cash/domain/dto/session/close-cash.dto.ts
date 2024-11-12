@@ -9,11 +9,16 @@ import {
 
 import { CashClosing } from '@entities/CashClosing';
 
-export class CloseCashDTO
+export class CloseCashSessionDTO
   implements
     Omit<
       CashClosing,
-      'id' | 'created_at' | 'updated_at' | 'deleted_at' | 'user' | 'cash_id'
+      | 'id'
+      | 'created_at'
+      | 'updated_at'
+      | 'deleted_at'
+      | 'user'
+      | 'cash_session_id'
     >
 {
   @IsOptional()

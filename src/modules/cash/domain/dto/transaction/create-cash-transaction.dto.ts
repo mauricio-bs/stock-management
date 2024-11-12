@@ -1,10 +1,11 @@
 import {
+  IsDate,
   IsEmpty,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsPositive,
   IsString,
-  IsUUID,
   ValidateIf,
 } from 'class-validator';
 
@@ -15,9 +16,20 @@ export class CreateCashTransactionDTO
   implements
     Omit<
       CashTransaction,
-      'id' | 'created_at' | 'updated_at' | 'deleted_at' | 'sale_id'
+      | 'id'
+      | 'cash_session_id'
+      | 'created_at'
+      | 'updated_at'
+      | 'deleted_at'
+      | 'sale_id'
+      | 'sale'
+      | 'user'
     >
 {
+  @IsOptional()
+  @IsDate()
+  transaction_date: Date = new Date();
+
   @IsEnum([
     ETransactionType.adjustment_in,
     ETransactionType.adjustment_out,
@@ -39,9 +51,6 @@ export class CreateCashTransactionDTO
   @IsNumber()
   @IsPositive()
   amount: number;
-
-  @IsUUID(4)
-  cash_id: string;
 
   @IsEmpty()
   user_id?: string;
