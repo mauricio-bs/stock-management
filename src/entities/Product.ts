@@ -6,6 +6,7 @@ import { Category } from './Category';
 
 export class Product {
   public readonly id?: string;
+  public code: number;
   public name: string;
   public is_active?: boolean = true;
   public quantity: number;

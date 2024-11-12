@@ -7,7 +7,10 @@ import { Product } from '@entities/Product';
 import { CreateProductDTO } from '@modules/product/domain/dto/create-product.dto';
 import { FindAllProductsDTO } from '@modules/product/domain/dto/find-all-products.dto';
 import { UpdateProductDTO } from '@modules/product/domain/dto/update-product.dto';
-import { IProductRepository } from '@repositories/IProduct.repository';
+import {
+  IFindOneProduct,
+  IProductRepository,
+} from '@repositories/IProduct.repository';
 
 @Injectable()
 export class PostgresProductRepository implements IProductRepository {
@@ -21,6 +24,7 @@ export class PostgresProductRepository implements IProductRepository {
     return (await this.prisma.product.create({
       data: {
         ...data,
+
         category: { connect: { id: category_id } },
         company: { connect: { id: company_id } },
       },
@@ -45,6 +49,21 @@ export class PostgresProductRepository implements IProductRepository {
     return (await this.prisma.product.findUnique({
       where: { id, company_id },
     })) as unknown as Product;
+  }
+
+  async findOne(filters: IFindOneProduct): Promise<Product> {
+    return (await this.prisma.product.findFirst({
+      where: filters,
+    })) as unknown as Product;
+  }
+
+  async findLastCode(company_id: string): Promise<number> {
+    return (
+      await this.prisma.product.findFirst({
+        where: { company_id },
+        orderBy: { code: 'desc' },
+      })
+    ).code;
   }
 
   async findAll({

@@ -80,6 +80,7 @@ enum unit_measure {
 
 model Product {
   id                 String       @id @default(uuid()) @db.Uuid
+  code               Int
   name               String
   is_active          Boolean      @default(true)
   quantity           Float
@@ -99,6 +100,7 @@ model Product {
   sale_items         SaleItems[]
 
   @@index([id, company_id])
+  @@index([code, company_id])
   @@map("product")
 }
 
@@ -126,6 +128,7 @@ enum sale_status {
 
 model Sale {
   id                String            @id @default(uuid()) @db.Uuid
+  code              Int
   total             Decimal           @db.Money
   total_discount    Decimal?          @db.Money
   status            sale_status       @default(pending)
@@ -142,6 +145,7 @@ model Sale {
   cash_transactions CashTransaction[]
 
   @@index([id, company_id])
+  @@index([code, company_id])
   @@map("sale")
 }
 

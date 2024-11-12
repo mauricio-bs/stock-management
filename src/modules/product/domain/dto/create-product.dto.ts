@@ -1,6 +1,7 @@
 import {
   IsBoolean,
   IsEnum,
+  IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
@@ -18,6 +19,17 @@ export class CreateProductDTO
       'id' | 'created_at' | 'updated_at' | 'deleted_at' | 'category'
     >
 {
+  @IsOptional()
+  @IsNumber()
+  @IsInt()
+  @IsPositive()
+  code: number;
+
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  min_stock_quantity?: number;
+
   @IsString()
   name: string;
 

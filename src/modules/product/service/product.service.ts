@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 
 import { PaginatedResult } from '@common/interfaces/pagination/PaginatedResult';
 import { prismaErrorHandler } from '@common/utils/error/prisma-error-handler';
@@ -15,6 +19,17 @@ export class ProductService implements IProductService {
   constructor(private readonly repository: IProductRepository) {}
 
   async create(data: CreateProductDTO): Promise<Product> {
+    if (!data.code) {
+      const last_code = await this.repository.findLastCode(data.company_id);
+      data.code += last_code;
+    } else {
+      const duplicated_code = await this.repository.findOne({
+        company_id: data.company_id,
+        code: data.code,
+      });
+      if (duplicated_code) throw new ConflictException('Code already in use');
+    }
+
     try {
       return await this.repository.create(data);
     } catch (error) {
@@ -23,6 +38,12 @@ export class ProductService implements IProductService {
   }
 
   async update(id: string, data: UpdateProductDTO): Promise<Product> {
+    const duplicated_code = await this.repository.findOne({
+      company_id: data.company_id,
+      code: data.code,
+    });
+    if (duplicated_code) throw new ConflictException('Code already in use');
+
     try {
       return await this.update(id, data);
     } catch (error) {

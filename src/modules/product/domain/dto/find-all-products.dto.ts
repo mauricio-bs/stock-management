@@ -1,10 +1,21 @@
 import { Transform } from 'class-transformer';
-import { IsBoolean, IsOptional, IsString, IsUUID } from 'class-validator';
+import {
+  IsBoolean,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 import { PaginationDTO } from '@common/dto/Pagination.dto';
 import { boolConverter } from '@common/utils/boolConverter';
 
 export class FindAllProductsDTO extends PaginationDTO {
+  @IsNumber()
+  @IsInt()
+  code?: number;
+
   @IsOptional()
   @IsString()
   name?: string;

@@ -9,6 +9,7 @@ import { User } from './User';
 export class Sale {
   public readonly id?: string;
   public status: ESaleStatus = ESaleStatus.pending;
+  public code: number;
   public total: number;
   public total_discount?: number;
   public company_id: string;
