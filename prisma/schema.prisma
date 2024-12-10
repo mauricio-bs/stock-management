@@ -85,6 +85,7 @@ model Product {
   is_active          Boolean      @default(true)
   quantity           Float
   min_stock_quantity Float?
+  reserved           Float?
   cost_value         Decimal      @db.Money()
   profit_margin      Float        @db.DoublePrecision
   price              Decimal      @db.Money
@@ -196,18 +197,25 @@ model Payment {
   @@map("payment")
 }
 
+enum installment_staus {
+  pending
+  completed
+  canceled
+}
+
 model Installment {
-  id                 String    @id @default(uuid()) @db.Uuid
-  installment_number Int       @default(1)
-  amount             Decimal   @db.Money
-  tax_value          Decimal?  @db.Money
-  receivied_at       DateTime  @default(now())
-  created_at         DateTime  @default(now())
-  updated_at         DateTime  @updatedAt
+  id                 String            @id @default(uuid()) @db.Uuid
+  installment_number Int               @default(1)
+  status             installment_staus @default(pending)
+  amount             Decimal           @db.Money
+  tax_value          Decimal?          @db.Money
+  received_at        DateTime          @default(now())
+  created_at         DateTime          @default(now())
+  updated_at         DateTime          @updatedAt
   deleted_at         DateTime?
   // relations
-  payment_id         String    @db.Uuid
-  payment            Payment   @relation(fields: [payment_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
+  payment_id         String            @db.Uuid
+  payment            Payment           @relation(fields: [payment_id], references: [id], onUpdate: Cascade, onDelete: Cascade)
 
   @@map("installment")
 }

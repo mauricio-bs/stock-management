@@ -10,6 +10,7 @@ export class Product {
   public name: string;
   public is_active?: boolean = true;
   public quantity: number;
+  public reserved?: number;
   public min_stock_quantity?: number;
   public price: number;
   public cost_value: number;
