@@ -22,6 +22,9 @@ const envSchema = z.object({
   // CACHE
   CACHE_REDIS_URL: z.string(),
   CACHE_TTL: z.coerce.number().default(60),
+  // BACKGROUND PROCESSORS
+  BACKGROUND_REDIS_URL: z.string(),
+  BACKGROUND_DEFAULT_ATTEMPTS: z.coerce.number().int().min(1).default(5),
 });
 
 export type Env = z.infer<typeof envSchema>;

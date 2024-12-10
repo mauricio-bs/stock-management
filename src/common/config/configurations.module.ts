@@ -1,3 +1,4 @@
+import { BullModule } from '@nestjs/bull';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -24,6 +25,17 @@ import { loggerOptions } from './log/logger.config';
           limit: configService.get('RATELIMIT_LIMIT'),
         },
       ],
+    }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Env>) => ({
+        url: configService.get('BACKGROUND_REDIS_URL'),
+        defaultJobOptions: {
+          attempts: configService.get('BACKGROUND_DEFAULT_ATTEMPTS'),
+          removeOnComplete: true,
+          removeOnFail: { age: 120 },
+        },
+      }),
     }),
     CacheModule.registerAsync({
       isGlobal: true,
