@@ -1,7 +1,8 @@
 import { Transform } from 'class-transformer';
 import {
+  IsBoolean,
   IsEmail,
-  IsEmpty,
+  IsOptional,
   IsString,
   IsStrongPassword,
   IsUUID,
@@ -20,17 +21,25 @@ export class CreateUserDTO
   email: string;
 
   @IsString()
-  @IsStrongPassword({ minLength: 6 })
+  @IsStrongPassword({
+    minLength: 6,
+    minSymbols: 1,
+    minUppercase: 1,
+    minNumbers: 1,
+    minLowercase: 1,
+  })
   password: string;
 
   @IsString()
   @Match('password', { message: 'passwords does not match' })
   confirm_password: string;
 
-  @IsEmpty()
+  @Transform(() => true)
+  @IsBoolean()
   is_active: boolean = true;
 
   @Transform(({ value }) => value && String(value).replace(/[^a-zA-Z0-9]/g, '')) // remove symbols
+  @IsOptional()
   @IsString()
   document?: string;
 
