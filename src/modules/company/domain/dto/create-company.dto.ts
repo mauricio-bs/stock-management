@@ -5,8 +5,10 @@ import {
   IsPhoneNumber,
   IsString,
   Length,
+  Validate,
 } from 'class-validator';
 
+import { ValidateDocument } from '@common/utils/validateDocument';
 import { Company } from '@entities/Company';
 
 export class CreateCompanyDTO
@@ -26,9 +28,10 @@ export class CreateCompanyDTO
   @IsString()
   name: string;
 
-  @Transform(({ value }) => String(value).replace(/^\d+/g, ''))
+  @Transform(({ value }) => String(value).replace(/\D/g, ''))
   @IsString()
   @Length(14, 14)
+  @Validate(ValidateDocument)
   cnpj: string;
 
   @IsOptional()
